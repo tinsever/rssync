@@ -1,0 +1,71 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}Quellen - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h4>RSS-Quellen</h4>
+    <p class="grey-text">Öffentliche Nachrichtenquellen nach Ländern sortiert</p>
+</div>
+
+{% if categories is empty %}
+    <div class="card">
+        <div class="card-content">
+            <p class="grey-text">Noch keine öffentlichen Quellen vorhanden.</p>
+        </div>
+    </div>
+{% else %}
+    {% for category in categories %}
+        {% if category.sources is not empty %}
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-content">
+                <span class="card-title">
+                    <i class="material-icons left blue-text">folder</i>
+                    {{ category.name }}
+                </span>
+                
+                <ul class="collection">
+                    {% for source in category.sources %}
+                    <li class="collection-item">
+                        <div class="row valign-wrapper" style="margin-bottom: 0;">
+                            <div class="col s12 m6">
+                                <strong>{{ source.name }}</strong>
+                            </div>
+                            <div class="col s12 m4 grey-text">
+                                {% if source.last_refresh %}
+                                    Aktualisiert: {{ source.last_refresh|date('d.m.Y') }}
+                                {% else %}
+                                    <span class="orange-text">Nicht aktualisiert</span>
+                                {% endif %}
+                            </div>
+                            <div class="col s12 m2 right-align">
+                                <a href="{{ source.url }}" target="_blank" class="btn-flat btn-small waves-effect" title="RSS-Feed öffnen">
+                                    <i class="material-icons">rss_feed</i>
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% if session.user_id %}
+<div class="center-align" style="margin-top: 2rem;">
+    <p class="grey-text">Eigene Quellen hinzufügen?</p>
+    <a href="{{ url_for('dashboard.sources') }}" class="btn waves-effect waves-light blue">
+        <i class="material-icons left">dashboard</i>Zum Dashboard
+    </a>
+</div>
+{% else %}
+<div class="center-align" style="margin-top: 2rem;">
+    <p class="grey-text">Eigene Quellen anlegen und filtern?</p>
+    <a href="{{ url_for('register') }}" class="btn waves-effect waves-light orange">
+        <i class="material-icons left">person_add</i>Jetzt registrieren
+    </a>
+</div>
+{% endif %}
+{% endblock %}

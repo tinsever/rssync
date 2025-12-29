@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ app_name }}{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <style>
+        nav .brand-logo { margin-left: 15px; }
+        .page-header { padding: 2rem 0 1rem; }
+        .feed-item { padding: 1rem; border-bottom: 1px solid #e0e0e0; }
+        .feed-item:last-child { border-bottom: none; }
+        .feed-item .feed-title { font-size: 1.1rem; font-weight: 500; color: #1565c0; text-decoration: none; }
+        .feed-item .feed-title:hover { text-decoration: underline; }
+        .feed-item .feed-meta { font-size: 0.85rem; color: #757575; margin-top: 0.3rem; }
+        .feed-item .feed-excerpt { margin-top: 0.5rem; color: #616161; }
+        .hero { padding: 3rem 0; text-align: center; }
+        .hero h1 { font-size: 2.5rem; }
+        .hero .tagline { font-size: 1.2rem; color: #757575; max-width: 600px; margin: 0 auto 1.5rem; }
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+<body class="grey lighten-4">
+    <nav class="blue darken-2">
+        <div class="nav-wrapper container">
+            <a href="/" class="brand-logo">RSSync</a>
+            <a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a href="{{ url_for('public.sources') }}">Quellen</a></li>
+                <li><a href="{{ url_for('public.lists') }}">Listen</a></li>
+                {% if session.user_id %}
+                    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('register') }}" class="btn waves-effect waves-light orange">Registrieren</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    
+    <ul class="sidenav" id="mobile-nav">
+        <li><a href="{{ url_for('public.sources') }}">Quellen</a></li>
+        <li><a href="{{ url_for('public.lists') }}">Listen</a></li>
+        {% if session.user_id %}
+            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% else %}
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('register') }}">Registrieren</a></li>
+        {% endif %}
+    </ul>
+    
+    <main style="min-height: calc(100vh - 200px); padding-bottom: 3rem;">
+        <div class="container">
+            {% for type, messages in flash.getMessages() %}
+                {% for msg in messages %}
+                    <div class="card-panel {{ type == 'success' ? 'green lighten-4 green-text text-darken-4' : 'red lighten-4 red-text text-darken-4' }}" style="margin-top: 1rem;">
+                        {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <footer class="page-footer blue darken-2">
+        <div class="container">
+            <div class="row">
+                <div class="col s12 m6">
+                    <h5 class="white-text">RSSync</h5>
+                    <p class="grey-text text-lighten-4">RSS-Feed Management & Filter Plattform made by Tin with love!</p>
+                </div>
+                <div class="col s12 m6">
+                    <h5 class="white-text">Links</h5>
+                    <ul>
+                        <li><a class="grey-text text-lighten-3" href="{{ url_for('public.sources') }}">Quellen</a></li>
+                        <li><a class="grey-text text-lighten-3" href="{{ url_for('public.lists') }}">Listen</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                © {{ "now"|date("Y") }} RSSync
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            M.AutoInit();
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

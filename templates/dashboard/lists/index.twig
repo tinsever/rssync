@@ -1,0 +1,88 @@
+{% extends 'layout/dashboard.twig' %}
+
+{% block title %}Listen - {{ app_name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="card">
+    <div class="card-content">
+        <div class="row valign-wrapper" style="margin-bottom: 0;">
+            <div class="col s6">
+                <span class="card-title">Meine Listen</span>
+            </div>
+            <div class="col s6 right-align">
+                <a href="{{ url_for('dashboard.lists.create') }}" class="btn waves-effect waves-light blue">
+                    <i class="material-icons left">add</i>Neue Liste
+                </a>
+            </div>
+        </div>
+        
+        {% if lists is empty %}
+            <p class="grey-text" style="margin-top: 2rem;">
+                Noch keine Listen vorhanden. Erstellen Sie eine Liste, um RSS-Feeds zusammenzustellen und zu filtern.
+            </p>
+        {% else %}
+            <table class="striped responsive-table" style="margin-top: 1rem;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Quellen</th>
+                        <th>Sichtbarkeit</th>
+                        <th>RSS-URL</th>
+                        <th class="right-align">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for list in lists %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('public.list.view', {slug: list.slug}) }}">
+                                {{ list.name }}
+                            </a>
+                        </td>
+                        <td>{{ list.sources_count }}</td>
+                        <td>
+                            {% if list.is_public %}
+                                <span class="chip green white-text">Öffentlich</span>
+                            {% else %}
+                                <span class="chip grey lighten-2">Privat</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn-flat btn-small waves-effect copy-rss" data-url="{{ url_for('public.list.rss', {slug: list.slug}) }}" title="RSS-URL kopieren">
+                                <i class="material-icons">content_copy</i>
+                            </button>
+                        </td>
+                        <td class="right-align">
+                            <a href="{{ url_for('dashboard.lists.sources', {id: list.id}) }}" class="btn-flat btn-small waves-effect" title="Quellen verwalten">
+                                <i class="material-icons">playlist_add</i>
+                            </a>
+                            <a href="{{ url_for('dashboard.lists.edit', {id: list.id}) }}" class="btn-flat btn-small waves-effect">
+                                <i class="material-icons">edit</i>
+                            </a>
+                            <form action="{{ url_for('dashboard.lists.delete', {id: list.id}) }}" method="POST" style="display: inline;" onsubmit="return confirm('Liste wirklich löschen?');">
+                                <button type="submit" class="btn-flat btn-small waves-effect red-text">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.copy-rss').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const url = window.location.origin + this.dataset.url;
+        navigator.clipboard.writeText(url).then(() => {
+            M.toast({html: 'RSS-URL kopiert!'});
+        });
+    });
+});
+</script>
+{% endblock %}

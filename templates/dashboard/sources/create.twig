@@ -1,0 +1,59 @@
+{% extends 'layout/dashboard.twig' %}
+
+{% block title %}Neue Quelle - {{ app_name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="card">
+    <div class="card-content">
+        <span class="card-title">Neue RSS-Quelle hinzufügen</span>
+        
+        <form action="/dashboard/sources" method="POST">
+            <div class="row">
+                <div class="input-field col s12 m6">
+                    <i class="material-icons prefix">rss_feed</i>
+                    <input type="text" id="name" name="name" required>
+                    <label for="name">Name (z.B. Der Spiegel)</label>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="input-field col s12 m8">
+                    <i class="material-icons prefix">link</i>
+                    <input type="url" id="url" name="url" required>
+                    <label for="url">RSS-Feed URL</label>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="input-field col s12 m6">
+                    <i class="material-icons prefix">folder</i>
+                    <select name="category_id" id="category_id" required>
+                        <option value="" disabled selected>Kategorie wählen</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">
+                                {{ category.name }}
+                                {% if category.user_id is null %}
+                                    (Global)
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <label for="category_id">Kategorie</label>
+                    <span class="helper-text">Wählen Sie eine eigene oder globale Kategorie</span>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col s12">
+                    <button type="submit" class="btn waves-effect waves-light blue">
+                        <i class="material-icons left">save</i>Speichern
+                    </button>
+                    <a href="{{ url_for('dashboard.sources') }}" class="btn waves-effect waves-light grey">
+                        Abbrechen
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'layout/base.twig' %}
+
+{% block content %}
+<div class="row" style="margin-top: 1rem;">
+    <div class="col s12 m3">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Dashboard</span>
+                <div class="collection">
+                    <a href="{{ url_for('dashboard') }}" class="collection-item"><i class="material-icons left">dashboard</i>Übersicht</a>
+                    <a href="{{ url_for('dashboard.categories') }}" class="collection-item"><i class="material-icons left">folder</i>Kategorien</a>
+                    <a href="{{ url_for('dashboard.sources') }}" class="collection-item"><i class="material-icons left">rss_feed</i>Quellen</a>
+                    <a href="{{ url_for('dashboard.lists') }}" class="collection-item"><i class="material-icons left">list</i>Listen</a>
+                    <a href="{{ url_for('dashboard.profile') }}" class="collection-item"><i class="material-icons left">person</i>Profil</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col s12 m9">
+        {% block dashboard_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

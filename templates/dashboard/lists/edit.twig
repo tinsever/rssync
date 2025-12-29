@@ -1,0 +1,52 @@
+{% extends 'layout/dashboard.twig' %}
+
+{% block title %}Liste bearbeiten - {{ app_name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="card">
+    <div class="card-content">
+        <span class="card-title">Liste bearbeiten</span>
+        
+        <form action="/dashboard/lists/{{ list.id }}" method="POST">
+            <div class="row">
+                <div class="input-field col s12 m6">
+                    <i class="material-icons prefix">list</i>
+                    <input type="text" id="name" name="name" value="{{ list.name }}" required>
+                    <label for="name" class="active">Name der Liste</label>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col s12">
+                    <p class="grey-text">
+                        Slug: <code>{{ list.slug }}</code>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col s12">
+                    <label>
+                        <input type="checkbox" name="is_public" class="filled-in" {% if list.is_public %}checked{% endif %}>
+                        <span>Öffentlich (Liste kann von anderen gesehen werden)</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="row" style="margin-top: 2rem;">
+                <div class="col s12">
+                    <button type="submit" class="btn waves-effect waves-light blue">
+                        <i class="material-icons left">save</i>Speichern
+                    </button>
+                    <a href="{{ url_for('dashboard.lists.sources', {id: list.id}) }}" class="btn waves-effect waves-light teal">
+                        Quellen verwalten
+                    </a>
+                    <a href="{{ url_for('dashboard.lists') }}" class="btn-flat waves-effect">
+                        Zurück
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

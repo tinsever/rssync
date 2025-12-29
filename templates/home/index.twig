@@ -1,0 +1,107 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}{{ app_name }} - RSS Feed Aggregator{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1 class="blue-text text-darken-2">RSSync</h1>
+    <p class="tagline">
+        Erstelle gefilterte RSS-Feeds aus verschiedenen Quellen. 
+        Kombiniere Zeitungen, filtere Autoren und erstelle deinen persönlichen News-Feed.
+    </p>
+    {% if not session.user_id %}
+    <a href="{{ url_for('register') }}" class="btn btn-large waves-effect waves-light orange">
+        <i class="material-icons left">person_add</i>Jetzt starten
+    </a>
+    {% else %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-large waves-effect waves-light blue">
+        <i class="material-icons left">dashboard</i>Zum Dashboard
+    </a>
+    {% endif %}
+</div>
+
+{% if categories is not empty %}
+<section style="margin-top: 2rem;">
+    <h4>Kategorien</h4>
+    <div class="row">
+        {% for category in categories %}
+        <div class="col s6 m4 l3">
+            <a href="{{ url_for('public.sources') }}?category={{ category.id }}" class="card hoverable" style="display: block;">
+                <div class="card-content center-align">
+                    <i class="material-icons medium blue-text">folder</i>
+                    <p class="card-title" style="font-size: 1.1rem;">{{ category.name }}</p>
+                    <p class="grey-text">{{ category.sources_count }} Quellen</p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="center-align">
+        <a href="{{ url_for('public.sources') }}" class="btn-flat waves-effect">
+            Alle Quellen anzeigen <i class="material-icons right">arrow_forward</i>
+        </a>
+    </div>
+</section>
+{% endif %}
+
+{% if publicLists is not empty %}
+<section style="margin-top: 2rem;">
+    <h4>Öffentliche Listen</h4>
+    <div class="row">
+        {% for list in publicLists %}
+        <div class="col s12 m6 l4">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">{{ list.name }}</span>
+                    <p class="grey-text">
+                        {{ list.sources_count }} Quellen
+                    </p>
+                </div>
+                <div class="card-action">
+                    <a href="{{ url_for('public.list.view', {slug: list.slug}) }}">Ansehen</a>
+                    <a href="{{ url_for('public.list.rss', {slug: list.slug}) }}" target="_blank">
+                        <i class="material-icons tiny">rss_feed</i> RSS
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="center-align">
+        <a href="{{ url_for('public.lists') }}" class="btn-flat waves-effect">
+            Alle Listen anzeigen <i class="material-icons right">arrow_forward</i>
+        </a>
+    </div>
+</section>
+{% endif %}
+
+{% if recentItems is not empty %}
+<section style="margin-top: 2rem;">
+    <h4>Aktuelle Nachrichten</h4>
+    <div class="card">
+        <div class="card-content" style="padding: 0;">
+            {% for item in recentItems %}
+            <div class="feed-item">
+                <a href="{{ item.link }}" target="_blank" class="feed-title">{{ item.title }}</a>
+                <div class="feed-meta">
+                    <span class="blue-text">{{ item.source.name }}</span>
+                    {% if item.source.category %}
+                        &bull; {{ item.source.category.name }}
+                    {% endif %}
+                    {% if item.author %}
+                        &bull; {{ item.author }}
+                    {% endif %}
+                    &bull; {{ item.pub_date|date('d.m.Y H:i') }}
+                </div>
+                {% if item.content %}
+                <div class="feed-excerpt">
+                    {{ item.content|striptags|slice(0, 200) }}{% if item.content|length > 200 %}...{% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

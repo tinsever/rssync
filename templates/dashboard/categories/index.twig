@@ -1,0 +1,54 @@
+{% extends 'layout/dashboard.twig' %}
+
+{% block title %}Kategorien - {{ app_name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="card">
+    <div class="card-content">
+        <div class="row valign-wrapper" style="margin-bottom: 0;">
+            <div class="col s6">
+                <span class="card-title">Meine Kategorien</span>
+            </div>
+            <div class="col s6 right-align">
+                <a href="{{ url_for('dashboard.categories.create') }}" class="btn waves-effect waves-light blue">
+                    <i class="material-icons left">add</i>Neue Kategorie
+                </a>
+            </div>
+        </div>
+        
+        {% if categories is empty %}
+            <p class="grey-text" style="margin-top: 2rem;">
+                Noch keine Kategorien vorhanden. Erstellen Sie eine Kategorie um Quellen zu gruppieren.
+            </p>
+        {% else %}
+            <table class="striped responsive-table" style="margin-top: 1rem;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Quellen</th>
+                        <th class="right-align">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>{{ category.name }}</td>
+                        <td>{{ category.sources_count }}</td>
+                        <td class="right-align">
+                            <a href="{{ url_for('dashboard.categories.edit', {id: category.id}) }}" class="btn-flat btn-small waves-effect">
+                                <i class="material-icons">edit</i>
+                            </a>
+                            <form action="{{ url_for('dashboard.categories.delete', {id: category.id}) }}" method="POST" style="display: inline;" onsubmit="return confirm('Kategorie wirklich löschen? Alle zugehörigen Quellen werden ebenfalls gelöscht!');">
+                                <button type="submit" class="btn-flat btn-small waves-effect red-text">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

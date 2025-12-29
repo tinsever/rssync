@@ -1,0 +1,16 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}Nicht gefunden - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 0;">
+    <h1 class="blue-text" style="font-size: 6rem; margin: 0;">404</h1>
+    <h4>Seite nicht gefunden</h4>
+    <p class="grey-text" style="margin-bottom: 2rem;">
+        Die angeforderte Seite existiert nicht oder wurde verschoben.
+    </p>
+    <a href="/" class="btn waves-effect waves-light blue">
+        <i class="material-icons left">home</i>Zur Startseite
+    </a>
+</div>
+{% endblock %}

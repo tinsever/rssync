@@ -1,0 +1,54 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}Listen - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h4>Öffentliche Listen</h4>
+    <p class="grey-text">Von Nutzern erstellte RSS-Feed-Sammlungen</p>
+</div>
+
+{% if lists is empty %}
+    <div class="card">
+        <div class="card-content">
+            <p class="grey-text">Noch keine öffentlichen Listen vorhanden.</p>
+            {% if session.user_id %}
+                <a href="{{ url_for('dashboard.lists.create') }}" class="btn waves-effect waves-light blue" style="margin-top: 1rem;">
+                    <i class="material-icons left">add</i>Erste Liste erstellen
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    <div class="row">
+        {% for list in lists %}
+        <div class="col s12 m6 l4">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">{{ list.name }}</span>
+                    <p class="grey-text">
+                        {{ list.sources_count }} Quellen<br>
+                    </p>
+                </div>
+                <div class="card-action">
+                    <a href="{{ url_for('public.list.view', {slug: list.slug}) }}">
+                        <i class="material-icons tiny">visibility</i> Ansehen
+                    </a>
+                    <a href="{{ url_for('public.list.rss', {slug: list.slug}) }}" target="_blank" title="RSS-Feed abonnieren">
+                        <i class="material-icons tiny">rss_feed</i> RSS
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if session.user_id %}
+<div class="center-align" style="margin-top: 2rem;">
+    <a href="{{ url_for('dashboard.lists.create') }}" class="btn waves-effect waves-light blue">
+        <i class="material-icons left">add</i>Neue Liste erstellen
+    </a>
+</div>
+{% endif %}
+{% endblock %}

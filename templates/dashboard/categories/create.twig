@@ -1,0 +1,32 @@
+{% extends 'layout/dashboard.twig' %}
+
+{% block title %}Neue Kategorie - {{ app_name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="card">
+    <div class="card-content">
+        <span class="card-title">Neue Kategorie erstellen</span>
+        
+        <form action="/dashboard/categories" method="POST">
+            <div class="row">
+                <div class="input-field col s12 m6">
+                    <i class="material-icons prefix">folder</i>
+                    <input type="text" id="name" name="name" required>
+                    <label for="name">Name (z.B. Deutschland, Österreich)</label>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col s12">
+                    <button type="submit" class="btn waves-effect waves-light blue">
+                        <i class="material-icons left">save</i>Speichern
+                    </button>
+                    <a href="{{ url_for('dashboard.categories') }}" class="btn waves-effect waves-light grey">
+                        Abbrechen
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

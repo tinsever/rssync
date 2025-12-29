@@ -1,0 +1,89 @@
+{% extends 'layout/dashboard.twig' %}
+
+{% block title %}Profil - {{ app_name }}{% endblock %}
+
+{% block dashboard_content %}
+<h4>Profil</h4>
+
+<div class="row">
+    <div class="col s12 m6">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">E-Mail ändern</span>
+                
+                <form action="/dashboard/profile" method="POST">
+                    <input type="hidden" name="action" value="email">
+                    <div class="input-field">
+                        <i class="material-icons prefix">email</i>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                        <label for="email" class="active">E-Mail-Adresse</label>
+                    </div>
+                    
+                    {% if user.email_verified_at %}
+                        <p class="green-text">
+                            <i class="material-icons tiny">check_circle</i> Verifiziert
+                        </p>
+                    {% else %}
+                        <p class="orange-text">
+                            <i class="material-icons tiny">warning</i> Nicht verifiziert
+                        </p>
+                    {% endif %}
+                    
+                    <button type="submit" class="btn waves-effect waves-light blue">
+                        <i class="material-icons left">save</i>Speichern
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col s12 m6">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Passwort ändern</span>
+                
+                <form action="/dashboard/profile" method="POST">
+                    <input type="hidden" name="action" value="password">
+                    
+                    <div class="input-field">
+                        <i class="material-icons prefix">lock</i>
+                        <input type="password" id="current_password" name="current_password" required>
+                        <label for="current_password">Aktuelles Passwort</label>
+                    </div>
+                    
+                    <div class="input-field">
+                        <i class="material-icons prefix">lock_outline</i>
+                        <input type="password" id="new_password" name="new_password" minlength="8" required>
+                        <label for="new_password">Neues Passwort</label>
+                    </div>
+                    
+                    <div class="input-field">
+                        <i class="material-icons prefix">lock_outline</i>
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                        <label for="confirm_password">Passwort bestätigen</label>
+                    </div>
+                    
+                    <button type="submit" class="btn waves-effect waves-light blue">
+                        <i class="material-icons left">save</i>Ändern
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card red lighten-5" style="margin-top: 1rem;">
+    <div class="card-content">
+        <span class="card-title red-text">Konto löschen</span>
+        <p class="grey-text text-darken-2">
+            Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Kategorien, Quellen und Listen werden gelöscht.
+        </p>
+        
+        <form action="{{ url_for('dashboard.profile.delete') }}" method="POST" onsubmit="return confirm('Sind Sie sicher? Alle Ihre Daten werden unwiderruflich gelöscht!');">
+            <button type="submit" class="btn waves-effect waves-light red" style="margin-top: 1rem;">
+                <i class="material-icons left">delete_forever</i>Konto löschen
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
