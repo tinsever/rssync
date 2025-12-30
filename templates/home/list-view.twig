@@ -8,7 +8,9 @@
         <div class="col s12 m8">
             <h4>{{ list.name }}</h4>
             <p class="grey-text">
-                {{ list.sources.count }} Quellen
+                <a href="#filter-modal" class="blue-text text-darken-2 modal-trigger" style="text-decoration: underline; text-decoration-style: dotted; cursor: pointer;">
+                    {{ list.sources.count }} Quellen
+                </a>
             </p>
         </div>
         <div class="col s12 m4 right-align">
@@ -65,15 +67,150 @@
         <i class="material-icons left">arrow_back</i>Alle Listen
     </a>
 </div>
+
+<!-- Filter Modal -->
+<div id="filter-modal" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <h4>
+            <i class="material-icons left blue-text">filter_list</i>
+            Filterregeln für "{{ list.name }}"
+        </h4>
+        <p class="grey-text">Diese Liste verwendet die folgenden Filterregeln für die Quellen:</p>
+        
+        {% if list.sources is empty %}
+            <div class="card-panel orange lighten-4">
+                <p class="orange-text text-darken-4">
+                    <i class="material-icons tiny">info</i>
+                    Diese Liste enthält noch keine Quellen.
+                </p>
+            </div>
+        {% else %}
+            {% for source in list.sources %}
+                {% set pivot = source.pivot %}
+                {% set hasFilters = pivot.author_whitelist or pivot.author_blacklist or pivot.category_whitelist or pivot.category_blacklist %}
+                
+                <div class="card" style="margin-top: 1rem;">
+                    <div class="card-content">
+                        <span class="card-title">
+                            <i class="material-icons left blue-text">rss_feed</i>
+                            {{ source.name }}
+                        </span>
+                        
+                        {% if not hasFilters %}
+                            <p class="grey-text">
+                                <i class="material-icons tiny">check_circle</i>
+                                Keine Filter aktiviert - alle Artikel werden angezeigt
+                            </p>
+                        {% else %}
+                            <div class="row" style="margin-top: 1rem;">
+                                {% if pivot.author_whitelist %}
+                                    <div class="col s12 m6" style="margin-bottom: 1rem;">
+                                        <strong class="green-text text-darken-2">
+                                            <i class="material-icons tiny">check_circle</i>
+                                            Autoren (nur diese):
+                                        </strong>
+                                        <div style="margin-top: 0.5rem;">
+                                            {% set authorWhitelist = pivot.author_whitelist|split(',') %}
+                                            {% for author in authorWhitelist %}
+                                                <span class="chip green lighten-4" style="margin: 0.25rem 0.25rem 0.25rem 0;">
+                                                    {{ author|trim }}
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                        <p class="helper-text grey-text" style="font-size: 0.85rem; margin-top: 0.5rem;">
+                                            Nur Artikel dieser Autoren werden angezeigt
+                                        </p>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if pivot.author_blacklist %}
+                                    <div class="col s12 m6" style="margin-bottom: 1rem;">
+                                        <strong class="red-text text-darken-2">
+                                            <i class="material-icons tiny">block</i>
+                                            Autoren (ausgeschlossen):
+                                        </strong>
+                                        <div style="margin-top: 0.5rem;">
+                                            {% set authorBlacklist = pivot.author_blacklist|split(',') %}
+                                            {% for author in authorBlacklist %}
+                                                <span class="chip red lighten-4" style="margin: 0.25rem 0.25rem 0.25rem 0;">
+                                                    {{ author|trim }}
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                        <p class="helper-text grey-text" style="font-size: 0.85rem; margin-top: 0.5rem;">
+                                            Artikel dieser Autoren werden ausgeblendet
+                                        </p>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if pivot.category_whitelist %}
+                                    <div class="col s12 m6" style="margin-bottom: 1rem;">
+                                        <strong class="green-text text-darken-2">
+                                            <i class="material-icons tiny">check_circle</i>
+                                            Kategorien (nur diese):
+                                        </strong>
+                                        <div style="margin-top: 0.5rem;">
+                                            {% set categoryWhitelist = pivot.category_whitelist|split(',') %}
+                                            {% for category in categoryWhitelist %}
+                                                <span class="chip green lighten-4" style="margin: 0.25rem 0.25rem 0.25rem 0;">
+                                                    {{ category|trim }}
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                        <p class="helper-text grey-text" style="font-size: 0.85rem; margin-top: 0.5rem;">
+                                            Nur Artikel mit diesen Tags werden angezeigt
+                                        </p>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if pivot.category_blacklist %}
+                                    <div class="col s12 m6" style="margin-bottom: 1rem;">
+                                        <strong class="red-text text-darken-2">
+                                            <i class="material-icons tiny">block</i>
+                                            Kategorien (ausgeschlossen):
+                                        </strong>
+                                        <div style="margin-top: 0.5rem;">
+                                            {% set categoryBlacklist = pivot.category_blacklist|split(',') %}
+                                            {% for category in categoryBlacklist %}
+                                                <span class="chip red lighten-4" style="margin: 0.25rem 0.25rem 0.25rem 0;">
+                                                    {{ category|trim }}
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                        <p class="helper-text grey-text" style="font-size: 0.85rem; margin-top: 0.5rem;">
+                                            Artikel mit diesen Tags werden ausgeblendet
+                                        </p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close btn waves-effect waves-light blue">
+            <i class="material-icons left">close</i>Schließen
+        </a>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-document.querySelectorAll('.copy-url').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const url = window.location.origin + this.dataset.url;
-        navigator.clipboard.writeText(url).then(() => {
-            M.toast({html: 'RSS-URL kopiert!'});
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize modals
+    const modalElems = document.querySelectorAll('.modal');
+    M.Modal.init(modalElems);
+    
+    // Copy URL functionality
+    document.querySelectorAll('.copy-url').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const url = window.location.origin + this.dataset.url;
+            navigator.clipboard.writeText(url).then(() => {
+                M.toast({html: 'RSS-URL kopiert!'});
+            });
         });
     });
 });

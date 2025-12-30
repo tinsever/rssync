@@ -149,6 +149,9 @@ class HomeController
         
         $items = $this->feedService->getListItems($list->id, 100);
         
+        // Load sources with their filter settings
+        $list->load('sources');
+        
         return $this->view->render($response, 'home/list-view.twig', [
             'list' => $list,
             'items' => $items,
