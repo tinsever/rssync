@@ -9,6 +9,7 @@ use App\Models\FeedItem;
 use App\Models\FeedList;
 use App\Models\Source;
 use App\Services\FeedService;
+use Laminas\Feed\Reader\Reader;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -60,6 +61,56 @@ class HomeController
         
         return $this->view->render($response, 'home/sources.twig', [
             'categories' => $categories,
+            'timezone' => $timezone,
+        ]);
+    }
+    
+    public function viewSource(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) $args['id'];
+        
+        $source = Source::with('category')->find($id);
+        
+        if (!$source) {
+            return $this->view->render($response->withStatus(404), 'errors/404.twig');
+        }
+        
+        // Get authors from feed items
+        $authors = $this->feedService->getSourceAuthors($source->id);
+        
+        // Get categories from feed items
+        $feedCategories = $this->feedService->getSourceCategories($source->id);
+        
+        // Try to fetch feed description from the RSS feed
+        $feedDescription = null;
+        try {
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 30,
+                    'user_agent' => 'RSSync/1.0 RSS Reader',
+                ],
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ]);
+            
+            $content = @file_get_contents($source->url, false, $context);
+            if ($content) {
+                $feed = Reader::importString($content);
+                $feedDescription = $feed->getDescription();
+            }
+        } catch (\Exception $e) {
+            // If we can't fetch the feed, just continue without description
+        }
+        
+        $timezone = $_ENV['APP_TIMEZONE'] ?? 'Europe/Berlin';
+        
+        return $this->view->render($response, 'home/source-view.twig', [
+            'source' => $source,
+            'authors' => $authors,
+            'feedCategories' => $feedCategories,
+            'feedDescription' => $feedDescription,
             'timezone' => $timezone,
         ]);
     }

@@ -22,6 +22,7 @@ return function (App $app) {
     // Public Routes
     $app->get('/', [HomeController::class, 'index'])->setName('home');
     $app->get('/sources', [HomeController::class, 'sources'])->setName('public.sources');
+    $app->get('/source/{id}', [HomeController::class, 'viewSource'])->setName('public.source.view');
     $app->get('/lists', [HomeController::class, 'lists'])->setName('public.lists');
     $app->get('/list/{slug}', [HomeController::class, 'viewList'])->setName('public.list.view');
     $app->get('/list/{slug}/rss', [HomeController::class, 'listRss'])->setName('public.list.rss');
