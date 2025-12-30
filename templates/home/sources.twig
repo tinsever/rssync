@@ -33,7 +33,7 @@
                             </div>
                             <div class="col s12 m4 grey-text">
                                 {% if source.last_refresh %}
-                                    Aktualisiert: {{ source.last_refresh|date('d.m.Y') }}
+                                    Aktualisiert: {{ source.last_refresh|date('d.m.Y') }} um {{ source.last_refresh|date('H:i') }} Uhr
                                 {% else %}
                                     <span class="orange-text">Nicht aktualisiert</span>
                                 {% endif %}
