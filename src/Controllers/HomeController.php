@@ -56,8 +56,11 @@ class HomeController
             ->orderBy('name')
             ->get();
         
+        $timezone = $_ENV['APP_TIMEZONE'] ?? 'Europe/Berlin';
+        
         return $this->view->render($response, 'home/sources.twig', [
             'categories' => $categories,
+            'timezone' => $timezone,
         ]);
     }
     
