@@ -10,6 +10,7 @@ use App\Models\FeedList;
 use App\Models\Source;
 use App\Models\User;
 use App\Services\AuthService;
+use App\Services\WorkOSService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Flash\Messages;
@@ -20,12 +21,17 @@ class DashboardController
     public function __construct(
         private Twig $view,
         private Messages $flash,
-        private AuthService $authService
+        private AuthService $authService,
+        private WorkOSService $workOSService
     ) {}
     
     public function index(Request $request, Response $response): Response
     {
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
+        
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
         
         // Get user stats
         $categoryCount = Category::where('user_id', $userId)->count();
@@ -46,65 +52,98 @@ class DashboardController
     
     public function profile(Request $request, Response $response): Response
     {
-        $user = User::find($_SESSION['user_id']);
+        $userId = $request->getAttribute('user_id');
+        $workosUserId = $request->getAttribute('workos_user_id');
+        
+        if (!$userId || !$workosUserId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $user = User::find($userId);
+        
+        // Get WorkOS user information
+        $workosUser = null;
+        try {
+            $workosUser = $this->workOSService->getCurrentUserInfo($workosUserId);
+        } catch (\Exception $e) {
+            error_log('Failed to fetch WorkOS user info: ' . $e->getMessage());
+        }
         
         return $this->view->render($response, 'dashboard/profile.twig', [
             'user' => $user,
+            'workosUser' => $workosUser,
         ]);
     }
     
-    public function updateProfile(Request $request, Response $response): Response
+    public function refreshWorkOSProfile(Request $request, Response $response): Response
     {
-        $userId = $_SESSION['user_id'];
-        $data = $request->getParsedBody();
-        $action = $data['action'] ?? 'email';
+        $workosUserId = $request->getAttribute('workos_user_id');
         
-        if ($action === 'email') {
-            $newEmail = trim($data['email'] ?? '');
+        if (!$workosUserId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        try {
+            $workosUser = $this->workOSService->getCurrentUserInfo($workosUserId);
             
-            if (empty($newEmail) || !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
-                $this->flash->addMessage('error', 'Bitte geben Sie eine gültige E-Mail-Adresse ein.');
-                return $response->withHeader('Location', '/dashboard/profile')->withStatus(302);
+            if ($workosUser) {
+                // Update local user data
+                $user = User::findByWorkOSId($workosUserId);
+                if ($user) {
+                    $user->email = $workosUser->email;
+                    if (isset($workosUser->emailVerified) && $workosUser->emailVerified) {
+                        $user->email_verified_at = new \DateTime();
+                    }
+                    $user->save();
+                }
+                
+                $this->flash->addMessage('success', 'Profilinformationen erfolgreich aktualisiert.');
             }
-            
-            if (!$this->authService->updateEmail($userId, $newEmail)) {
-                $this->flash->addMessage('error', 'Diese E-Mail-Adresse wird bereits verwendet.');
-                return $response->withHeader('Location', '/dashboard/profile')->withStatus(302);
-            }
-            
-            $_SESSION['user_email'] = $newEmail;
-            $this->flash->addMessage('success', 'E-Mail-Adresse erfolgreich aktualisiert.');
-        } elseif ($action === 'password') {
-            $currentPassword = $data['current_password'] ?? '';
-            $newPassword = $data['new_password'] ?? '';
-            $confirmPassword = $data['confirm_password'] ?? '';
-            
-            if (strlen($newPassword) < 8) {
-                $this->flash->addMessage('error', 'Das neue Passwort muss mindestens 8 Zeichen lang sein.');
-                return $response->withHeader('Location', '/dashboard/profile')->withStatus(302);
-            }
-            
-            if ($newPassword !== $confirmPassword) {
-                $this->flash->addMessage('error', 'Die Passwörter stimmen nicht überein.');
-                return $response->withHeader('Location', '/dashboard/profile')->withStatus(302);
-            }
-            
-            if (!$this->authService->updatePassword($userId, $currentPassword, $newPassword)) {
-                $this->flash->addMessage('error', 'Das aktuelle Passwort ist falsch.');
-                return $response->withHeader('Location', '/dashboard/profile')->withStatus(302);
-            }
-            
-            $this->flash->addMessage('success', 'Passwort erfolgreich geändert.');
+        } catch (\Exception $e) {
+            error_log('Failed to refresh WorkOS profile: ' . $e->getMessage());
+            $this->flash->addMessage('error', 'Fehler beim Aktualisieren der Profilinformationen.');
         }
         
         return $response->withHeader('Location', '/dashboard/profile')->withStatus(302);
     }
     
+    public function redirectToWorkOSManagement(Request $request, Response $response): Response
+    {
+        // Store a flag to redirect back to profile after WorkOS callback
+        $_SESSION['workos_management_redirect'] = '/dashboard/profile';
+        
+        $state = bin2hex(random_bytes(16));
+        $_SESSION['oauth_state'] = $state;
+        setcookie('oauth_state_backup', $state, time() + 600, '/', '', false, true);
+        
+        try {
+            $managementUrl = $this->workOSService->getProfileManagementUrl($state);
+            return $response
+                ->withHeader('Location', $managementUrl)
+                ->withStatus(302);
+        } catch (\Exception $e) {
+            error_log('Failed to get WorkOS management URL: ' . $e->getMessage());
+            $this->flash->addMessage('error', 'Fehler beim Öffnen der WorkOS-Verwaltung.');
+            return $response->withHeader('Location', '/dashboard/profile')->withStatus(302);
+        }
+    }
+    
+    public function updateProfile(Request $request, Response $response): Response
+    {
+        // Profile updates are handled by WorkOS, so redirect to WorkOS user management
+        $this->flash->addMessage('info', 'Profiländerungen werden über WorkOS verwaltet.');
+        return $response->withHeader('Location', '/dashboard/profile')->withStatus(302);
+    }
+    
     public function deleteAccount(Request $request, Response $response): Response
     {
-        $userId = $_SESSION['user_id'];
+        $workosUserId = $request->getAttribute('workos_user_id');
         
-        if ($this->authService->deleteAccount($userId)) {
+        if (!$workosUserId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        if ($this->authService->deleteAccount($workosUserId)) {
             session_destroy();
             return $response->withHeader('Location', '/')->withStatus(302);
         }

@@ -13,7 +13,7 @@ class User extends Model
     
     protected $fillable = [
         'email',
-        'password',
+        'workos_user_id',
         'email_verified_at',
         'verification_token',
         'reset_token',
@@ -44,6 +44,14 @@ class User extends Model
     public function isVerified(): bool
     {
         return $this->email_verified_at !== null;
+    }
+
+    /**
+     * Find user by WorkOS user ID
+     */
+    public static function findByWorkOSId(string $workosUserId): ?self
+    {
+        return self::where('workos_user_id', $workosUserId)->first();
     }
 }
 

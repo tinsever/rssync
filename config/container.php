@@ -66,6 +66,11 @@ return [
         return new \App\Services\AuthService();
     },
     
+    // WorkOS Service
+    \App\Services\WorkOSService::class => function () {
+        return new \App\Services\WorkOSService();
+    },
+    
     // Feed Service
     \App\Services\FeedService::class => function (ContainerInterface $container) {
         $container->get(Capsule::class); // Boot Eloquent

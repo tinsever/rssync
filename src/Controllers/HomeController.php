@@ -136,9 +136,10 @@ class HomeController
         
         if (!$list) {
             // Try to find list for logged-in user
-            if (isset($_SESSION['user_id'])) {
+            $userId = $request->getAttribute('user_id');
+            if ($userId) {
                 $list = FeedList::where('slug', $slug)
-                    ->where('user_id', $_SESSION['user_id'])
+                    ->where('user_id', $userId)
                     ->first();
             }
             
@@ -165,9 +166,10 @@ class HomeController
         $list = FeedList::where('slug', $slug)->where('is_public', true)->first();
         
         if (!$list) {
-            if (isset($_SESSION['user_id'])) {
+            $userId = $request->getAttribute('user_id');
+            if ($userId) {
                 $list = FeedList::where('slug', $slug)
-                    ->where('user_id', $_SESSION['user_id'])
+                    ->where('user_id', $userId)
                     ->first();
             }
             

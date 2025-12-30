@@ -27,23 +27,18 @@ return function (App $app) {
     $app->get('/list/{slug}', [HomeController::class, 'viewList'])->setName('public.list.view');
     $app->get('/list/{slug}/rss', [HomeController::class, 'listRss'])->setName('public.list.rss');
     
-    // Auth Routes
+    // Auth Routes (WorkOS)
     $app->get('/login', [AuthController::class, 'showLogin'])->setName('login');
-    $app->post('/login', [AuthController::class, 'login']);
-    $app->get('/register', [AuthController::class, 'showRegister'])->setName('register');
-    $app->post('/register', [AuthController::class, 'register']);
+    $app->get('/auth/callback', [AuthController::class, 'handleCallback'])->setName('auth.callback');
     $app->get('/logout', [AuthController::class, 'logout'])->setName('logout');
-    $app->get('/verify/{token}', [AuthController::class, 'verify'])->setName('verify');
-    $app->get('/forgot-password', [AuthController::class, 'showForgotPassword'])->setName('forgot-password');
-    $app->post('/forgot-password', [AuthController::class, 'forgotPassword']);
-    $app->get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->setName('reset-password');
-    $app->post('/reset-password/{token}', [AuthController::class, 'resetPassword']);
     
     // Protected Dashboard Routes
     $app->group('/dashboard', function (RouteCollectorProxy $group) {
         $group->get('', [DashboardController::class, 'index'])->setName('dashboard');
         $group->get('/profile', [DashboardController::class, 'profile'])->setName('dashboard.profile');
         $group->post('/profile', [DashboardController::class, 'updateProfile']);
+        $group->get('/profile/refresh', [DashboardController::class, 'refreshWorkOSProfile'])->setName('dashboard.profile.refresh');
+        $group->get('/profile/workos', [DashboardController::class, 'redirectToWorkOSManagement'])->setName('dashboard.profile.workos');
         $group->post('/profile/delete', [DashboardController::class, 'deleteAccount'])->setName('dashboard.profile.delete');
         
         // Categories

@@ -22,7 +22,11 @@ class SourceController
     
     public function index(Request $request, Response $response): Response
     {
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
+        
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
         
         // Show only sources owned by the user
         $sources = Source::where('user_id', $userId)
@@ -49,7 +53,12 @@ class SourceController
     
     public function store(Request $request, Response $response): Response
     {
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
+        
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
         $data = $request->getParsedBody();
         $name = trim($data['name'] ?? '');
         $url = trim($data['url'] ?? '');
@@ -97,9 +106,13 @@ class SourceController
     
     public function edit(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         // Only allow editing user's own sources
         $source = Source::where('user_id', $userId)->find($id);
         
@@ -119,9 +132,13 @@ class SourceController
     
     public function update(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         // Only allow updating user's own sources
         $source = Source::where('user_id', $userId)->find($id);
         
@@ -164,9 +181,13 @@ class SourceController
     
     public function delete(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         // Only allow deleting user's own sources
         $source = Source::where('user_id', $userId)->find($id);
         
@@ -183,9 +204,13 @@ class SourceController
     
     public function refresh(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         // Only allow refreshing user's own sources
         $source = Source::where('user_id', $userId)->find($id);
         

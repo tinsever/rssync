@@ -12,6 +12,23 @@ require __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
+// Configure error logging for PHP built-in server
+if ($_ENV['APP_DEBUG'] === 'true') {
+    // Enable error logging
+    ini_set('log_errors', '1');
+    ini_set('display_errors', '0'); // Don't display in HTML, but log them
+    
+    // Create log file in storage directory
+    $logFile = __DIR__ . '/../storage/logs/app.log';
+    if (!is_dir(dirname($logFile))) {
+        mkdir(dirname($logFile), 0755, true);
+    }
+    ini_set('error_log', $logFile);
+    
+    // Also output to stderr (visible in terminal when using php -S)
+    // Note: php -S automatically shows errors in terminal, but we'll log to file too
+}
+
 // Boot Eloquent early (before container)
 $capsule = new Capsule();
 $capsule->addConnection([

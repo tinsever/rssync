@@ -24,7 +24,11 @@ class FeedListController
     
     public function index(Request $request, Response $response): Response
     {
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
+        
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
         
         $lists = FeedList::where('user_id', $userId)
             ->withCount('sources')
@@ -52,7 +56,11 @@ class FeedListController
             return $response->withHeader('Location', '/dashboard/lists/create')->withStatus(302);
         }
         
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
+        
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
         
         $list = new FeedList();
         $list->name = $name;
@@ -67,9 +75,13 @@ class FeedListController
     
     public function edit(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         $list = FeedList::where('id', $id)->where('user_id', $userId)->first();
         
         if (!$list) {
@@ -84,9 +96,13 @@ class FeedListController
     
     public function update(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         $list = FeedList::where('id', $id)->where('user_id', $userId)->first();
         
         if (!$list) {
@@ -118,9 +134,13 @@ class FeedListController
     
     public function delete(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         $list = FeedList::where('id', $id)->where('user_id', $userId)->first();
         
         if (!$list) {
@@ -136,9 +156,13 @@ class FeedListController
     
     public function manageSources(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         $list = FeedList::where('id', $id)->where('user_id', $userId)->with('sources')->first();
         
         if (!$list) {
@@ -171,9 +195,13 @@ class FeedListController
     
     public function updateSources(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         $list = FeedList::where('id', $id)->where('user_id', $userId)->first();
         
         if (!$list) {

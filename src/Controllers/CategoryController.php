@@ -19,7 +19,11 @@ class CategoryController
     
     public function index(Request $request, Response $response): Response
     {
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
+        
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
         
         // Only show user's own categories
         $categories = Category::where('user_id', $userId)
@@ -40,6 +44,12 @@ class CategoryController
     
     public function store(Request $request, Response $response): Response
     {
+        $userId = $request->getAttribute('user_id');
+        
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
         $data = $request->getParsedBody();
         $name = trim($data['name'] ?? '');
         
@@ -47,8 +57,6 @@ class CategoryController
             $this->flash->addMessage('error', 'Bitte geben Sie einen Namen ein.');
             return $response->withHeader('Location', '/dashboard/categories/create')->withStatus(302);
         }
-        
-        $userId = $_SESSION['user_id'];
         
         // Check if category name already exists for this user
         if (Category::where('name', $name)->where(function ($q) use ($userId) {
@@ -69,9 +77,13 @@ class CategoryController
     
     public function edit(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         $category = Category::where('id', $id)->where('user_id', $userId)->first();
         
         if (!$category) {
@@ -86,9 +98,13 @@ class CategoryController
     
     public function update(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         $category = Category::where('id', $id)->where('user_id', $userId)->first();
         
         if (!$category) {
@@ -121,9 +137,13 @@ class CategoryController
     
     public function delete(Request $request, Response $response, array $args): Response
     {
-        $id = (int) $args['id'];
-        $userId = $_SESSION['user_id'];
+        $userId = $request->getAttribute('user_id');
         
+        if (!$userId) {
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+        
+        $id = (int) $args['id'];
         $category = Category::where('id', $id)->where('user_id', $userId)->first();
         
         if (!$category) {

@@ -10,7 +10,7 @@
         Kombiniere Zeitungen, filtere Autoren und erstelle deinen persönlichen News-Feed.
     </p>
     {% if not session.user_id %}
-    <a href="{{ url_for('register') }}" class="btn btn-large waves-effect waves-light orange">
+    <a href="{{ url_for('login') }}" class="btn btn-large waves-effect waves-light orange">
         <i class="material-icons left">person_add</i>Jetzt starten
     </a>
     {% else %}

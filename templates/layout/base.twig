@@ -34,7 +34,6 @@
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 {% else %}
                     <li><a href="{{ url_for('login') }}">Login</a></li>
-                    <li><a href="{{ url_for('register') }}" class="btn waves-effect waves-light orange">Registrieren</a></li>
                 {% endif %}
             </ul>
         </div>
@@ -48,7 +47,6 @@
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% else %}
             <li><a href="{{ url_for('login') }}">Login</a></li>
-            <li><a href="{{ url_for('register') }}">Registrieren</a></li>
         {% endif %}
     </ul>
     
